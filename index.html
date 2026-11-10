@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex"><style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>我家食譜紀錄</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+  /* 版面：手機是「搜尋列釘在上方 → 清單 → 點開變成整頁食譜」；寬螢幕變成左清單、右食譜的雙欄 */
+  :root {
+    --bg: #EDF1EA;
+    --surface: #FAFCF8;
+    --ink: #16231C;
+    --muted: #56675C;
+    --line: #CBD6CB;
+    --leaf: #1D6A48;
+    --chip: #DFE8DC;
+    --yolk: #F6C445;
+    --yolk-ink: #35290A;
+    --display: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+    --body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1612; --surface: #18221C; --ink: #E4ECE3; --muted: #97A89B; --line: #2C3B32;
+      --leaf: #7FCBA1; --chip: #223129; --yolk: #F2BE3A; --yolk-ink: #2B2000;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1612; --surface: #18221C; --ink: #E4ECE3; --muted: #97A89B; --line: #2C3B32;
+    --leaf: #7FCBA1; --chip: #223129; --yolk: #F2BE3A; --yolk-ink: #2B2000;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 400 16px/1.65 var(--body);
+    -webkit-text-size-adjust: 100%;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0 0 auto; z-index: 10;
+    height: env(safe-area-inset-top, 0px); background: var(--bg);
+  }
+  h1, h2, h3, p, ul, ol { margin: 0; padding: 0; }
+  ul, ol { list-style: none; }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
+  mark { background: var(--yolk); color: var(--yolk-ink); border-radius: 4px; padding: 0 4px; }
+
+  .wrap {
+    max-width: 1180px; margin-inline: auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  /* 刊頭：會跟著捲走 */
+  .mast .wrap { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 20px; padding-block: 20px 6px; }
+  .mast h1 { font: 900 27px/1.2 var(--display); letter-spacing: .01em; }
+  .mast p { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* 搜尋列：釘在最上方 */
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .top .wrap { padding-block: 10px; }
+  .search { position: relative; }
+  .search label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .search input {
+    display: block; width: 100%; height: 48px; padding: 0 78px 0 14px;
+    background: var(--surface); border: 1.5px solid var(--ink); border-radius: 10px; font-size: 17px;
+    -webkit-appearance: none; appearance: none;
+  }
+  .search input::placeholder { color: var(--muted); opacity: 1; }
+  .search input::-webkit-search-cancel-button { display: none; }
+  #clear {
+    position: absolute; right: 6px; top: 6px; height: 36px; padding: 0 12px;
+    border: 0; border-radius: 7px; background: var(--chip); font-size: 14px; cursor: pointer;
+  }
+
+  .layout { display: grid; gap: 28px; padding-block: 18px 56px; }
+
+  /* 左側：食材、分類、清單 */
+  .browse { min-width: 0; display: grid; gap: 16px; align-content: start; }
+  .group-label { font-size: 12px; font-weight: 500; letter-spacing: .12em; color: var(--muted); margin-bottom: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    min-height: 34px; padding: 5px 12px; border: 0; border-radius: 999px;
+    background: var(--chip); font-size: 14px; line-height: 1.4; cursor: pointer;
+  }
+  .chip small { font-size: 12px; margin-left: 4px; opacity: .65; font-variant-numeric: tabular-nums; }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .status { font-size: 13px; color: var(--muted); }
+  .list { border-top: 1px solid var(--line); }
+  .row {
+    display: grid; gap: 2px; padding: 14px 10px; border-bottom: 1px solid var(--line);
+    color: inherit; text-decoration: none;
+  }
+  .row:hover, .row[aria-current="true"] { background: var(--surface); }
+  .row .cat { font-size: 12px; font-weight: 500; letter-spacing: .12em; color: var(--leaf); }
+  .row .name { font: 700 20px/1.35 var(--display); }
+  .row .ings { font-size: 14px; line-height: 1.8; color: var(--muted); overflow-wrap: anywhere; }
+  .row .meta { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .empty { padding: 18px 10px; color: var(--muted); }
+
+  /* 右側：一道食譜 */
+  .recipe { min-width: 0; }
+  .recipe-bar {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 4; background: var(--bg);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-block: 10px;
+  }
+  .pill {
+    min-height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--surface); font-size: 15px; cursor: pointer;
+  }
+  .pill.awake { margin-left: auto; }
+  .pill[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .eyebrow { font-size: 12px; font-weight: 500; letter-spacing: .12em; color: var(--leaf); font-variant-numeric: tabular-nums; }
+  .recipe h2 { font: 900 clamp(28px, 5.5vw, 40px)/1.25 var(--display); text-wrap: balance; margin-top: 4px; }
+  .cols { display: grid; gap: 30px 44px; margin-top: 26px; }
+  .recipe h3 {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    font: 500 13px/1.4 var(--body); letter-spacing: .16em; color: var(--muted);
+    padding-bottom: 8px; border-bottom: 1.5px solid var(--ink); margin-bottom: 4px;
+  }
+  .recipe h3 span { letter-spacing: 0; font-size: 12px; }
+
+  /* 材料：菜單式的「品名……用量」，點一下可以劃掉 */
+  .ing { display: flex; align-items: baseline; gap: 8px; padding: 9px 0; cursor: pointer; position: relative; }
+  .ing input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .ing .box {
+    flex: none; align-self: center; width: 18px; height: 18px; border: 1.5px solid var(--ink); border-radius: 4px;
+    display: grid; place-items: center; font-size: 13px; line-height: 1; color: var(--bg);
+  }
+  .ing input:checked + .box { background: var(--ink); }
+  .ing input:checked + .box::before { content: "✓"; }
+  .ing input:focus-visible + .box { outline: 2px solid var(--leaf); outline-offset: 2px; }
+  .ing .n { flex: 0 1 auto; max-width: 52%; font-weight: 500; }
+  .ing .dots { flex: 1 1 16px; min-width: 16px; border-bottom: 1.5px dotted var(--muted); transform: translateY(-5px); opacity: .6; }
+  .ing .a { flex: 0 1 auto; max-width: 56%; text-align: right; font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ing:has(input:checked) .n, .ing:has(input:checked) .a { text-decoration: line-through; opacity: .5; }
+
+  .steps { counter-reset: step; }
+  .steps li {
+    counter-increment: step; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px;
+    padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 17px; line-height: 1.7;
+  }
+  .steps li::before { content: counter(step); font: 900 26px/1.25 var(--display); color: var(--leaf); font-variant-numeric: tabular-nums; }
+
+  .src li { padding: 8px 0; overflow-wrap: anywhere; }
+  .src a { color: var(--leaf); text-decoration: underline; text-underline-offset: 3px; }
+  .note { margin-top: 10px; padding: 12px 14px; border: 1px dashed var(--muted); border-radius: 8px; font-size: 15px; }
+  .note b { display: block; font-size: 12px; font-weight: 500; letter-spacing: .12em; color: var(--muted); }
+  .placeholder { color: var(--muted); padding-block: 24px; }
+
+  @media (max-width: 899.98px) {
+    .app:not(.is-open) .recipe { display: none; }
+    .app.is-open .mast, .app.is-open .top, .app.is-open .browse { display: none; }
+    .app.is-open .layout { padding-top: 0; }
+  }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 52px; align-items: start; padding-top: 24px; }
+    .browse {
+      position: sticky; top: calc(var(--top-h, 69px) + 24px);
+      max-height: calc(100vh - var(--top-h, 69px) - 48px); overflow-y: auto; padding-right: 6px;
+    }
+    .recipe-bar { position: static; padding-block: 0 8px; }
+    .back { display: none; }
+  }
+  @media (min-width: 1100px) {
+    .cols { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+    .cols .wide { grid-column: 1 / -1; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .chip, .pill, .row { transition: background-color .15s; }
+  }
+</style>
+
+<div class="app" id="app" lang="zh-Hant">
+  <header class="mast">
+    <div class="wrap">
+      <h1>我家食譜紀錄</h1>
+      <p id="count"></p>
+    </div>
+  </header>
+
+  <div class="top">
+    <div class="wrap">
+      <div class="search">
+        <label for="q">用食材找食譜</label>
+        <input id="q" type="search" placeholder="冰箱裡有什麼？例如：雞 蒜" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+        <button id="clear" type="button" hidden>清除</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap layout">
+    <section class="browse" aria-label="食譜清單">
+      <div id="pantry-box">
+        <p class="group-label">收錄過的食材，點一下加入搜尋</p>
+        <div class="chips" id="pantry"></div>
+      </div>
+      <div id="cats-box">
+        <p class="group-label">料理類型</p>
+        <div class="chips" id="cats"></div>
+      </div>
+      <p class="status" id="status" aria-live="polite"></p>
+      <ul class="list" id="list"></ul>
+    </section>
+    <article class="recipe" id="recipe" aria-live="polite"></article>
+  </div>
+</div>
+
+<script type="application/json" id="recipe-data">[{"name":"鹽昆布雞塊","category":"便當菜","date":"2026-11-10","ingredients":[{"name":"雞腿排","amount":"2 片","aliases":["雞腿","雞腿肉","雞肉"]},{"name":"減鹽鹽昆布","amount":"原文寫「很多」，未給確切用量","aliases":["鹽昆布","鹽漬昆布","昆布"]},{"name":"麻油","amount":"1 大匙","aliases":["芝麻油"]},{"name":"蒜頭","amount":"1.5 大匙，切末","aliases":["蒜末"]},{"name":"薑泥","amount":"1 大匙","aliases":["薑","生薑"]},{"name":"太白粉","amount":"1 大匙"},{"name":"植物油","amount":"材料表寫 1 小匙，煎製步驟寫 1 大匙","aliases":["食用油"]}],"steps":["把雞腿排切成方便入口的小塊。","把麻油、減鹽鹽昆布、蒜末和薑泥拌入雞肉，醃 15 分鐘。","下鍋前再拌入太白粉，讓雞肉均勻裹上薄粉。","平底鍋用中火熱鍋加油，放入雞塊，煎到接觸鍋面的一側上色後翻面。","翻面後改用中小火，煎到雞塊熟透、表面微酥即可盛盤。"],"sources":[{"label":"100天便當計畫｜YouTube Shorts 影片說明（2026-10-24）","url":"https://www.youtube.com/shorts/JAXhhzF4SfM"}],"notes":"影片標題是「鹽昆布雞塊」，說明欄寫「鹽昆布雞腿」。植物油在材料表與煎製步驟的用量不同，兩個數字都照來源保留。"}]</script>
+<script>
+(() => {
+  const $ = sel => document.querySelector(sel);
+  const app = $('#app'), q = $('#q'), clearBtn = $('#clear'), topEl = $('.top');
+  const listEl = $('#list'), statusEl = $('#status'), recipeEl = $('#recipe'), countEl = $('#count');
+  const pantryEl = $('#pantry'), pantryBox = $('#pantry-box'), catsEl = $('#cats'), catsBox = $('#cats-box');
+  const wide = window.matchMedia('(min-width: 900px)');
+
+  const norm = value => String(value ?? '').normalize('NFKC').toLowerCase().trim();
+  const el = (tag, text, className) => {
+    const node = document.createElement(tag);
+    if (text != null) node.textContent = text;
+    if (className) node.className = className;
+    return node;
+  };
+
+  // 同一種食材的不同叫法，搜尋時視為相同
+  const GROUPS = [
+    ['番茄', '蕃茄', '西紅柿'], ['雞蛋', '蛋'], ['青蔥', '蔥'], ['大蒜', '蒜', '蒜頭'],
+    ['青花菜', '綠花椰菜', '西蘭花'], ['馬鈴薯', '洋芋'], ['紅蘿蔔', '胡蘿蔔'],
+    ['地瓜', '甘薯', '番薯'], ['高麗菜', '甘藍', '包心菜', '捲心菜'], ['香菜', '芫荽']
+  ].map(group => group.map(norm));
+  const groupOf = key => GROUPS.find(group => group.includes(key));
+  // 搜「雞蛋」不會放寬成「蛋」；搜「蛋」才會連雞蛋、鴨蛋一起找
+  const variantsOf = term => {
+    const group = groupOf(term);
+    return group ? group.filter(name => name.length >= term.length) : [term];
+  };
+  const hash = text => {
+    let h = 5381;
+    for (const ch of text) h = ((h * 33) ^ ch.codePointAt(0)) >>> 0;
+    return h.toString(36);
+  };
+
+  const seen = new Set();
+  const data = JSON.parse($('#recipe-data').textContent).map(recipe => {
+    let id = 'r-' + hash(norm(recipe.name));
+    while (seen.has(id)) id += 'x';
+    seen.add(id);
+    const ings = (recipe.ingredients || []).map(ing => {
+      const base = [ing.name, ...(ing.aliases || [])].map(norm).filter(Boolean);
+      const hay = new Set(base);
+      for (const key of base) for (const name of groupOf(key) || []) hay.add(name);
+      return { name: ing.name, amount: ing.amount, hay: [...hay] };
+    });
+    return {
+      id, ings, name: recipe.name, category: recipe.category || '', date: recipe.date || '',
+      steps: recipe.steps || [], sources: recipe.sources || [], notes: recipe.notes || '',
+      titleKey: norm(recipe.name + ' ' + (recipe.category || ''))
+    };
+  }).sort((a, b) => b.date.localeCompare(a.date));
+
+  const ingMatches = (ing, variants) => variants.some(v => ing.hay.some(name => name.includes(v)));
+  const parseTerms = () => [...new Set(norm(q.value).split(/[\s,，、;；+＋]+/u).filter(Boolean))];
+
+  let cat = '';
+  let openId = null;
+  let listScroll = 0;
+  let cameFromList = false;
+  const checked = new Map();
+  let wake = null, wantWake = false, wakeNote = '';
+
+  /* ---------- 食材與分類的快捷鈕 ---------- */
+  const pantry = (() => {
+    const counts = new Map();
+    for (const recipe of data) {
+      for (const ing of recipe.ings) {
+        const key = norm(ing.name);
+        const label = (groupOf(key) || [ing.name])[0];
+        counts.set(label, (counts.get(label) || 0) + 1);
+      }
+    }
+    return [...counts].sort((a, b) => b[1] - a[1]).slice(0, 18);
+  })();
+  const categories = (() => {
+    const counts = new Map();
+    for (const recipe of data) if (recipe.category) counts.set(recipe.category, (counts.get(recipe.category) || 0) + 1);
+    return [...counts].sort((a, b) => b[1] - a[1]);
+  })();
+
+  function chip(label, count, pressed, onClick) {
+    const button = el('button', label, 'chip');
+    button.type = 'button';
+    button.setAttribute('aria-pressed', String(pressed));
+    if (count > 1) button.append(el('small', String(count)));
+    button.addEventListener('click', onClick);
+    return button;
+  }
+  function renderChips(terms) {
+    pantryBox.hidden = !pantry.length;
+    pantryEl.replaceChildren(...pantry.map(([label, count]) => {
+      const key = norm(label);
+      return chip(label, count, terms.includes(key), () => {
+        const next = terms.includes(key) ? terms.filter(t => t !== key) : [...terms, key];
+        q.value = next.join(' ');
+        render();
+      });
+    }));
+    catsBox.hidden = categories.length < 2;
+    catsEl.replaceChildren(
+      chip('全部', 0, cat === '', () => { cat = ''; render(); }),
+      ...categories.map(([label, count]) => chip(label, count, cat === label, () => { cat = cat === label ? '' : label; render(); }))
+    );
+  }
+
+  /* ---------- 清單 ---------- */
+  function row(recipe, variants, current) {
+    const link = el('a', null, 'row');
+    link.href = '#' + recipe.id;
+    if (current) link.setAttribute('aria-current', 'true');
+    link.addEventListener('click', () => { cameFromList = !location.hash || location.hash === '#'; });
+    if (recipe.category) link.append(el('span', recipe.category, 'cat'));
+    link.append(el('span', recipe.name, 'name'));
+    const ings = el('span', null, 'ings');
+    recipe.ings.forEach((ing, i) => {
+      if (i) ings.append('・');
+      ings.append(variants.some(v => ingMatches(ing, v)) ? el('mark', ing.name) : ing.name);
+    });
+    link.append(ings, el('span', recipe.ings.length + ' 樣材料 · ' + recipe.steps.length + ' 個步驟', 'meta'));
+    const item = el('li');
+    item.append(link);
+    return item;
+  }
+
+  function render() {
+    const terms = parseTerms();
+    const variants = terms.map(variantsOf);
+    clearBtn.hidden = !q.value;
+    renderChips(terms);
+
+    const visible = data.filter(recipe =>
+      (!cat || recipe.category === cat) &&
+      variants.every((v, i) => recipe.ings.some(ing => ingMatches(ing, v)) || recipe.titleKey.includes(terms[i]))
+    );
+    const opened = data.find(recipe => recipe.id === openId) || null;
+    const shown = opened || (wide.matches ? visible[0] || null : null);
+
+    statusEl.textContent = terms.length || cat
+      ? visible.length + ' 道符合' + (terms.length ? '「' + terms.join('、') + '」' : '') + (cat ? '，類型：' + cat : '')
+      : '全部 ' + data.length + ' 道，新的在前';
+    listEl.replaceChildren(...visible.map(recipe => row(recipe, variants, shown && recipe.id === shown.id)));
+    if (!visible.length) {
+      listEl.append(el('li', data.length ? '沒有食譜同時包含這些食材，少輸入一項試試。' : '第一道食譜還沒收錄。', 'empty'));
+    }
+    renderRecipe(shown, variants);
+  }
+
+  /* ---------- 一道食譜 ---------- */
+  function section(title, aside, body, className) {
+    const box = el('section', null, className);
+    const heading = el('h3', title);
+    if (aside) heading.append(el('span', aside));
+    box.append(heading, body);
+    return box;
+  }
+
+  function renderRecipe(recipe, variants) {
+    recipeEl.replaceChildren();
+    if (!recipe) {
+      recipeEl.append(el('p', data.length ? '左邊沒有符合的料理，換個食材試試。' : '第一道食譜還沒收錄。', 'placeholder'));
+      return;
+    }
+    const bar = el('div', null, 'recipe-bar');
+    const back = el('button', '← 回到清單', 'pill back');
+    back.type = 'button';
+    back.addEventListener('click', closeRecipe);
+    bar.append(back);
+    if ('wakeLock' in navigator) {
+      const awake = el('button', wantWake ? '螢幕保持開啟中' : '下廚時保持螢幕開啟', 'pill awake');
+      awake.type = 'button';
+      awake.id = 'awake';
+      awake.setAttribute('aria-pressed', String(wantWake));
+      awake.addEventListener('click', () => setWake(!wantWake));
+      bar.append(awake);
+      if (wakeNote) bar.append(el('span', wakeNote, 'status'));
+    }
+
+    const head = el('header');
+    const eyebrow = [recipe.category, recipe.date && '收錄 ' + recipe.date].filter(Boolean).join(' · ');
+    if (eyebrow) head.append(el('p', eyebrow, 'eyebrow'));
+    head.append(el('h2', recipe.name));
+
+    const done = checked.get(recipe.id) || new Set();
+    checked.set(recipe.id, done);
+    const ingList = el('ul');
+    recipe.ings.forEach((ing, i) => {
+      const label = el('label', null, 'ing');
+      const input = el('input');
+      input.type = 'checkbox';
+      input.id = 'ing-' + recipe.id + '-' + i;
+      input.checked = done.has(i);
+      input.addEventListener('change', () => { input.checked ? done.add(i) : done.delete(i); });
+      const name = el('span', null, 'n');
+      name.append(variants.some(v => ingMatches(ing, v)) ? el('mark', ing.name) : ing.name);
+      label.append(input, el('span', null, 'box'), name, el('span', null, 'dots'), el('span', ing.amount || '用量未註明', 'a'));
+      const item = el('li');
+      item.append(label);
+      ingList.append(item);
+    });
+    if (!recipe.ings.length) ingList.append(el('li', '未註明'));
+
+    const stepList = el('ol', null, 'steps');
+    for (const step of recipe.steps.length ? recipe.steps : ['未註明']) {
+      const item = el('li');
+      item.append(el('span', step));
+      stepList.append(item);
+    }
+
+    const srcBody = el('div');
+    const srcList = el('ul', null, 'src');
+    for (const source of recipe.sources.length ? recipe.sources : [{ label: '未提供參考連結' }]) {
+      const item = el('li');
+      const text = source.label || '原始連結';
+      if (typeof source.url === 'string' && /^https?:\/\//i.test(source.url)) {
+        const link = el('a', text + ' ↗');
+        link.href = source.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        item.append(link);
+      } else {
+        item.textContent = text;
+      }
+      srcList.append(item);
+    }
+    srcBody.append(srcList);
+    if (recipe.notes) {
+      const note = el('p', null, 'note');
+      note.append(el('b', '備註・待確認'), recipe.notes);
+      srcBody.append(note);
+    }
+
+    const cols = el('div', null, 'cols');
+    cols.append(
+      section('材料', recipe.ings.length + ' 樣 · 備好就點一下劃掉', ingList),
+      section('步驟', recipe.steps.length + ' 步', stepList),
+      section('參考來源', '', srcBody, 'wide')
+    );
+    recipeEl.append(bar, head, cols);
+  }
+
+  /* ---------- 開關食譜（用 # 記住目前看哪一道，手機的返回鍵可回清單） ---------- */
+  function route() {
+    let id = '';
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { id = ''; }
+    const wasOpen = openId !== null;
+    openId = data.some(recipe => recipe.id === id) ? id : null;
+    if (!openId) cameFromList = false;
+    app.classList.toggle('is-open', openId !== null);
+    if (openId && !wasOpen) listScroll = window.scrollY;
+    render();
+    if (openId) window.scrollTo(0, 0);
+    else if (wasOpen && !wide.matches) window.scrollTo(0, listScroll);
+  }
+  function clearHash() {
+    try { history.replaceState(null, '', location.pathname + location.search); route(); }
+    catch { location.hash = ''; }
+  }
+  function closeRecipe() {
+    if (!cameFromList) { clearHash(); return; }
+    history.back();
+    setTimeout(() => { if (openId && location.hash.length > 1) clearHash(); }, 250);
+  }
+
+  /* ---------- 下廚時保持螢幕開啟 ---------- */
+  async function setWake(on) {
+    wantWake = on;
+    wakeNote = '';
+    try {
+      if (on) {
+        wake = await navigator.wakeLock.request('screen');
+        wake.addEventListener('release', () => { wake = null; });
+      } else if (wake) {
+        await wake.release();
+        wake = null;
+      }
+    } catch {
+      wantWake = false;
+      wake = null;
+      wakeNote = '這個裝置不允許保持螢幕開啟';
+    }
+    render();
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (wantWake && !wake && document.visibilityState === 'visible') setWake(true);
+  });
+
+  /* ---------- 啟動 ---------- */
+  const ingredientCount = new Set(data.flatMap(recipe => recipe.ings.map(ing => norm(ing.name)))).size;
+  countEl.textContent = data.length + ' 道料理 · ' + ingredientCount + ' 種食材';
+  q.addEventListener('input', render);
+  clearBtn.addEventListener('click', () => { q.value = ''; cat = ''; render(); q.focus(); });
+  window.addEventListener('hashchange', route);
+  wide.addEventListener('change', render);
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(() => app.style.setProperty('--top-h', topEl.offsetHeight + 'px')).observe(topEl);
+  }
+  route();
+})();
+</script>
+
+</body></html>
