@@ -15,19 +15,20 @@
     --chip: #DFE8DC;
     --yolk: #F6C445;
     --yolk-ink: #35290A;
+    --flag: #B3372B;
     --display: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
     --body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #0F1612; --surface: #18221C; --ink: #E4ECE3; --muted: #97A89B; --line: #2C3B32;
-      --leaf: #7FCBA1; --chip: #223129; --yolk: #F2BE3A; --yolk-ink: #2B2000;
+      --leaf: #7FCBA1; --chip: #223129; --yolk: #F2BE3A; --yolk-ink: #2B2000; --flag: #F2877A;
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
     --bg: #0F1612; --surface: #18221C; --ink: #E4ECE3; --muted: #97A89B; --line: #2C3B32;
-    --leaf: #7FCBA1; --chip: #223129; --yolk: #F2BE3A; --yolk-ink: #2B2000;
+    --leaf: #7FCBA1; --chip: #223129; --yolk: #F2BE3A; --yolk-ink: #2B2000; --flag: #F2877A;
     color-scheme: dark;
   }
 
@@ -94,7 +95,11 @@
     color: inherit; text-decoration: none;
   }
   .row:hover, .row[aria-current="true"] { background: var(--surface); }
-  .row .cat { font-size: 12px; font-weight: 500; letter-spacing: .12em; color: var(--leaf); }
+  .row .cat { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; letter-spacing: .12em; color: var(--leaf); }
+  .origin {
+    display: inline-block; padding: 0 7px; border: 1.5px solid var(--flag); border-radius: 4px;
+    color: var(--flag); font-size: 12px; font-weight: 700; line-height: 1.6; letter-spacing: .08em; vertical-align: 1px;
+  }
   .row .name { font: 700 20px/1.35 var(--display); }
   .row .ings { font-size: 14px; line-height: 1.8; color: var(--muted); overflow-wrap: anywhere; }
   .row .meta { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -112,7 +117,7 @@
   }
   .pill.awake { margin-left: auto; }
   .pill[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-  .eyebrow { font-size: 12px; font-weight: 500; letter-spacing: .12em; color: var(--leaf); font-variant-numeric: tabular-nums; }
+  .eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: .12em; color: var(--leaf); font-variant-numeric: tabular-nums; }
   .recipe h2 { font: 900 clamp(28px, 5.5vw, 40px)/1.25 var(--display); text-wrap: balance; margin-top: 4px; }
   .cols { display: grid; gap: 30px 44px; margin-top: 26px; }
   .recipe h3 {
@@ -208,7 +213,7 @@
   </div>
 </div>
 
-<script type="application/json" id="recipe-data">[{"name":"鹽昆布雞塊","category":"便當菜","date":"2026-11-10","ingredients":[{"name":"雞腿排","amount":"2 片","aliases":["雞腿","雞腿肉","雞肉"]},{"name":"減鹽鹽昆布","amount":"原文寫「很多」，未給確切用量","aliases":["鹽昆布","鹽漬昆布","昆布"]},{"name":"麻油","amount":"1 大匙","aliases":["芝麻油"]},{"name":"蒜頭","amount":"1.5 大匙，切末","aliases":["蒜末"]},{"name":"薑泥","amount":"1 大匙","aliases":["薑","生薑"]},{"name":"太白粉","amount":"1 大匙"},{"name":"植物油","amount":"材料表寫 1 小匙，煎製步驟寫 1 大匙","aliases":["食用油"]}],"steps":["把雞腿排切成方便入口的小塊。","把麻油、減鹽鹽昆布、蒜末和薑泥拌入雞肉，醃 15 分鐘。","下鍋前再拌入太白粉，讓雞肉均勻裹上薄粉。","平底鍋用中火熱鍋加油，放入雞塊，煎到接觸鍋面的一側上色後翻面。","翻面後改用中小火，煎到雞塊熟透、表面微酥即可盛盤。"],"sources":[{"label":"100天便當計畫｜YouTube Shorts 影片說明（2026-10-24）","url":"https://www.youtube.com/shorts/JAXhhzF4SfM"}],"notes":"影片標題是「鹽昆布雞塊」，說明欄寫「鹽昆布雞腿」。植物油在材料表與煎製步驟的用量不同，兩個數字都照來源保留。"},{"name":"檸檬帕瑪森義大利麵","category":"義大利麵","date":"2026-11-11","ingredients":[{"name":"義大利直麵","amount":"","aliases":["義大利麵","spaghetti","麵"]},{"name":"特級初榨橄欖油","amount":"","aliases":["橄欖油","olive oil"]},{"name":"帕瑪森乾酪","amount":"分兩次刨入，最後再刨一些裝飾","aliases":["帕瑪森","帕馬森","帕瑪森起司","起司","乳酪","Parmigiano Reggiano"]},{"name":"檸檬","amount":"成熟的檸檬，擠汁並刨皮","aliases":["檸檬汁","檸檬皮","lemon"]},{"name":"羅勒","amount":"幾片","aliases":["basil"]},{"name":"鹽","amount":"煮麵水要鹹到像海水","aliases":["海鹽"]},{"name":"煮麵水","amount":"一小勺","aliases":["麵水"]}],"steps":["煮一大鍋水，加鹽調到像海水一樣鹹（廚師用小指沾一下嚐），下義大利直麵。","拿一個大碗架在煮麵的鍋子上，用下面的滾水隔水加熱。","檸檬擠汁，用濾網濾掉籽，倒進碗裡。","加入特級初榨橄欖油，再刨入檸檬皮。","刨入帕瑪森乾酪，放幾片羅勒，再刨一次帕瑪森。","舀一點煮麵水進碗裡，攪拌成綿密的醬汁。","麵煮好後直接夾進碗裡，和醬汁拌勻。","盛盤，淋上碗裡剩下的醬汁，最後再刨些檸檬皮和帕瑪森。"],"sources":[{"label":"CHECK鬧｜YouTube Shorts「如何做出純正的義大利麵」（2026-11-06，中文字幕轉載）","url":"https://www.youtube.com/shorts/eXP6v5FViMU"},{"label":"原始影片：畫面浮水印為 TikTok 帳號 bortipastabar（原始連結未確認）"}],"notes":"影片完全沒有給用量，材料和步驟依廚師口白與影片畫面整理。"}]</script>
+<script type="application/json" id="recipe-data">[{"name":"鹽昆布雞塊","category":"便當菜","date":"2026-11-10","ingredients":[{"name":"雞腿排","amount":"2 片","aliases":["雞腿","雞腿肉","雞肉"]},{"name":"減鹽鹽昆布","amount":"原文寫「很多」，未給確切用量","aliases":["鹽昆布","鹽漬昆布","昆布"]},{"name":"麻油","amount":"1 大匙","aliases":["芝麻油"]},{"name":"蒜頭","amount":"1.5 大匙，切末","aliases":["蒜末"]},{"name":"薑泥","amount":"1 大匙","aliases":["薑","生薑"]},{"name":"太白粉","amount":"1 大匙"},{"name":"植物油","amount":"材料表寫 1 小匙，煎製步驟寫 1 大匙","aliases":["食用油"]}],"steps":["把雞腿排切成方便入口的小塊。","把麻油、減鹽鹽昆布、蒜末和薑泥拌入雞肉，醃 15 分鐘。","下鍋前再拌入太白粉，讓雞肉均勻裹上薄粉。","平底鍋用中火熱鍋加油，放入雞塊，煎到接觸鍋面的一側上色後翻面。","翻面後改用中小火，煎到雞塊熟透、表面微酥即可盛盤。"],"sources":[{"label":"100天便當計畫｜YouTube Shorts 影片說明（2026-10-24）","url":"https://www.youtube.com/shorts/JAXhhzF4SfM"}],"notes":"影片標題是「鹽昆布雞塊」，說明欄寫「鹽昆布雞腿」。植物油在材料表與煎製步驟的用量不同，兩個數字都照來源保留。"},{"name":"檸檬帕瑪森義大利麵","category":"義大利麵","date":"2026-11-11","ingredients":[{"name":"義大利直麵","amount":"","aliases":["義大利麵","spaghetti","麵"]},{"name":"特級初榨橄欖油","amount":"","aliases":["橄欖油","olive oil"]},{"name":"帕瑪森乾酪","amount":"分兩次刨入，最後再刨一些裝飾","aliases":["帕瑪森","帕馬森","帕瑪森起司","起司","乳酪","Parmigiano Reggiano"]},{"name":"檸檬","amount":"成熟的檸檬，擠汁並刨皮","aliases":["檸檬汁","檸檬皮","lemon"]},{"name":"羅勒","amount":"幾片","aliases":["basil"]},{"name":"鹽","amount":"煮麵水要鹹到像海水","aliases":["海鹽"]},{"name":"煮麵水","amount":"一小勺","aliases":["麵水"]}],"steps":["煮一大鍋水，加鹽調到像海水一樣鹹（廚師用小指沾一下嚐），下義大利直麵。","拿一個大碗架在煮麵的鍋子上，用下面的滾水隔水加熱。","檸檬擠汁，用濾網濾掉籽，倒進碗裡。","加入特級初榨橄欖油，再刨入檸檬皮。","刨入帕瑪森乾酪，放幾片羅勒，再刨一次帕瑪森。","舀一點煮麵水進碗裡，攪拌成綿密的醬汁。","麵煮好後直接夾進碗裡，和醬汁拌勻。","盛盤，淋上碗裡剩下的醬汁，最後再刨些檸檬皮和帕瑪森。"],"sources":[{"label":"CHECK鬧｜YouTube Shorts「如何做出純正的義大利麵」（2026-11-06，中文字幕轉載）","url":"https://www.youtube.com/shorts/eXP6v5FViMU"},{"label":"原始影片：畫面浮水印為 TikTok 帳號 bortipastabar（原始連結未確認）"}],"notes":"影片完全沒有給用量，材料和步驟依廚師口白與影片畫面整理。"},{"name":"腐乳煎五花肉炒青椒","category":"家常菜","origin":"中國","date":"2026-11-12","ingredients":[{"name":"五花肉","amount":"1 塊，帶皮","aliases":["豬五花","三層肉","豬肉"]},{"name":"豆腐乳","amount":"3 塊","aliases":["腐乳"]},{"name":"胡椒粉","amount":"1 勺","aliases":["胡椒"]},{"name":"五香粉","amount":"一點"},{"name":"生抽","amount":"醃肉 1 大勺，起鍋前再 1 勺","aliases":["醬油","淡色醬油","生抽醬油"]},{"name":"蠔油","amount":"1 勺","aliases":["蚝油"]},{"name":"大蒜","amount":"一些，剁成末","aliases":["蒜","蒜頭","蒜末"]},{"name":"生薑","amount":"1 塊，去皮切末","aliases":["薑","薑末"]},{"name":"小米辣","amount":"一些，切小圈","aliases":["小米椒","朝天椒","辣椒"]},{"name":"小蔥","amount":"1 把，切蔥花","aliases":["青蔥","蔥","蔥花"]},{"name":"青辣椒","amount":"2 根，去籽切滾刀塊","aliases":["青椒","辣椒"]},{"name":"食用油","amount":"煎肉一點點，爆香少量","aliases":["油"]},{"name":"鹽","amount":"一點點","aliases":["食用鹽"]},{"name":"清水","amount":"一點點","aliases":["水"]}],"steps":["鐵鍋燒熱，五花肉豬皮朝下來回擦動燙約 1 分鐘，去掉豬毛和異味。","放進溫水泡軟，用小刀把豬皮表面刮乾淨，再用溫水洗兩次後瀝乾。","切成約 1 公分的厚片，太薄口感會變差。","加入豆腐乳 3 塊、胡椒粉 1 勺、五香粉一點、生抽 1 大勺、蠔油 1 勺，用手抓拌到每片都裹滿腐乳，醃 20 分鐘左右。","醃肉時備料：大蒜和生薑剁末，小米辣切小圈，小蔥切蔥花，青辣椒去籽切滾刀塊。","平底鍋放一點點油，油熱後把五花肉一片片排入，轉小火慢煎並不時翻面，煎 5 到 6 分鐘到兩面焦黃酥脆、逼出多餘油脂。","夾出放涼，切成小塊。","另起鍋放少量油，下蒜末、薑末、小米辣（畫面上蔥花也一起下）爆香。","加入五花肉，開大火快速翻炒出蒜香和辣味。","加 1 勺生抽，放入青辣椒，撒一點點鹽、加一點點清水，其他調料都不放，快炒到青椒斷生就起鍋。"],"sources":[{"label":"阿朝哥美食｜YouTube「五花肉最好吃的新做法，不炒不炸不紅燒」（2023-08-25）","url":"https://www.youtube.com/watch?v=85e0dHptFwQ"}],"notes":"中國頻道的食譜，用語是中國說法：生抽約等於台灣的淡色醬油，小米辣是朝天椒一類的小辣椒，小蔥即青蔥。蔥花下鍋的時機口白沒講，是從影片畫面看到的。"},{"name":"冷鍋煎脆皮雞腿排","category":"雞肉料理","date":"2026-11-12","ingredients":[{"name":"去骨帶皮雞腿排","amount":"1 片（約 150 克），1 人份","aliases":["雞腿排","雞腿","雞腿肉","雞肉"]},{"name":"鹽","amount":"1.2–1.5 克（雞肉重量的 0.8–1%）","aliases":["食鹽"]},{"name":"橄欖油","amount":"20 克，醃肉用"},{"name":"大蒜","amount":"半瓣","aliases":["蒜","蒜頭"]},{"name":"奶油","amount":"5–10 克（可省略）","aliases":["無鹽奶油","黃油","butter"]},{"name":"醬油","amount":"少量（可省略）"},{"name":"檸檬","amount":"1 角，擠汁（可省略）","aliases":["檸檬汁"]},{"name":"黑胡椒","amount":"少量（可省略）","aliases":["胡椒"]}],"steps":["雞腿從包裝取出，去掉筋膜、筋和軟骨；只修掉厚硬的脂肪塊，其餘脂肪留著增添風味。","從肉的那一面把較厚的部分劃幾刀攤開，讓整片厚度一致，注意不要切破雞皮。","用廚房紙巾吸乾兩面水分，兩面均勻撒鹽。","放進碗或保鮮盒，加入 20 克橄欖油和半瓣蒜抹勻。趕時間醃 30 分鐘，最好冷藏醃 6 小時或過夜。","取出後把兩面多餘的水分和油擦掉，雞皮才不會變成用蒸的。","雞皮朝下放進冷鍋，不用另外加油（雞肉偏瘦或鍋子易沾才薄抹一層），開中小火。","前 30 秒到 1 分鐘用鍋鏟輕壓雞皮，讓整片皮貼平鍋面，尤其是容易翹起的中間。也可以鋪一張烘焙紙，上面放一個裝少量水的碗當重物，皮定型後拿掉。","不要移動雞肉，慢慢把皮下油脂煎出來；等雞皮自然離鍋、均勻金黃、側面的肉變白就翻面。","只翻一次，翻面後轉小火，肉面不要壓。時間大約是皮面 80%、肉面 20%。","快熟時在鍋子空處放 5–10 克奶油，稍微傾斜鍋子，用湯匙把融化的奶油淋在肉面和邊緣，避開雞皮。","從側面插溫度計，中心至少 74°C（165°F）就關火。","喜歡的話在鍋裡的奶油加少量醬油和檸檬汁。要保持雞皮酥脆就只淋肉面；要更濃郁也可以淋在皮上，但皮會沒那麼脆。","起鍋後雞皮朝上靜置 3–5 分鐘再切。剩下的奶油醬油拌勻，淋在肉上或放在盤邊沾著吃。"],"sources":[{"label":"SAMUKICHI -Japan food studio-｜YouTube「Stop Putting Chicken Thighs in a Hot Pan」（2026-07-31，日本主廚）","url":"https://www.youtube.com/watch?v=QG_bnywZR5w"}],"notes":"材料與用量照影片說明欄，步驟照影片的繁中字幕。說明欄列了黑胡椒，但影片沒說何時加。"}]</script>
 <script>
 (() => {
   const $ = sel => document.querySelector(sel);
@@ -255,9 +260,9 @@
       return { name: ing.name, amount: ing.amount, hay: [...hay] };
     });
     return {
-      id, ings, name: recipe.name, category: recipe.category || '', date: recipe.date || '',
+      id, ings, name: recipe.name, category: recipe.category || '', origin: recipe.origin || '', date: recipe.date || '',
       steps: recipe.steps || [], sources: recipe.sources || [], notes: recipe.notes || '',
-      titleKey: norm(recipe.name + ' ' + (recipe.category || ''))
+      titleKey: norm([recipe.name, recipe.category, recipe.origin].filter(Boolean).join(' '))
     };
   }).sort((a, b) => b.date.localeCompare(a.date));
 
@@ -320,7 +325,12 @@
     link.href = '#' + recipe.id;
     if (current) link.setAttribute('aria-current', 'true');
     link.addEventListener('click', () => { cameFromList = !location.hash || location.hash === '#'; });
-    if (recipe.category) link.append(el('span', recipe.category, 'cat'));
+    if (recipe.category || recipe.origin) {
+      const line = el('span', null, 'cat');
+      if (recipe.category) line.append(el('span', recipe.category));
+      if (recipe.origin) line.append(el('span', recipe.origin, 'origin'));
+      link.append(line);
+    }
     link.append(el('span', recipe.name, 'name'));
     const ings = el('span', null, 'ings');
     recipe.ings.forEach((ing, i) => {
@@ -388,7 +398,12 @@
 
     const head = el('header');
     const eyebrow = [recipe.category, recipe.date && '收錄 ' + recipe.date].filter(Boolean).join(' · ');
-    if (eyebrow) head.append(el('p', eyebrow, 'eyebrow'));
+    if (eyebrow || recipe.origin) {
+      const line = el('p', null, 'eyebrow');
+      if (recipe.origin) line.append(el('span', recipe.origin, 'origin'));
+      if (eyebrow) line.append(el('span', eyebrow));
+      head.append(line);
+    }
     head.append(el('h2', recipe.name));
 
     const done = checked.get(recipe.id) || new Set();
